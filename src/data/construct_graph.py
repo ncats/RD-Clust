@@ -9,25 +9,21 @@ from goatools.anno.gaf_reader import GafReader
 from goatools.base import download_ncbi_associations
 from goatools.anno.genetogo_reader import Gene2GoReader
 
-def get_goa(curation_source):
+def get_goa(goa_file):
 
-    if curation_source == "NCBI":
-    #From NCBI via goatools
-        fin_gene2go = download_ncbi_associations()
+    # Read NCBI's gene2go. Store annotations in a list of namedtuples
+    objanno = Gene2GoReader(goa_file, taxids=[9606])
 
-        # Read NCBI's gene2go. Store annotations in a list of namedtuples
-        objanno = Gene2GoReader(fin_gene2go, taxids=[9606])
-
-        gene2go = {}
-        for assoc in objanno.associations:
-            if assoc.DB_ID in gene2go:
-                if assoc.NS in gene2go[assoc.DB_ID]:
-                    gene2go[assoc.DB_ID][assoc.NS].append({'GO_ID':assoc.GO_ID,'Qualifier':assoc.Qualifier})
-                else:
-                    gene2go[assoc.DB_ID][assoc.NS] = [{'GO_ID':assoc.GO_ID,'Qualifier':assoc.Qualifier}]
+    gene2go = {}
+    for assoc in objanno.associations:
+        if assoc.DB_ID in gene2go:
+            if assoc.NS in gene2go[assoc.DB_ID]:
+                gene2go[assoc.DB_ID][assoc.NS].append({'GO_ID':assoc.GO_ID,'Qualifier':assoc.Qualifier})
             else:
-                gene2go[assoc.DB_ID] = {assoc.NS:[{'GO_ID':assoc.GO_ID,'Qualifier':assoc.Qualifier}]}
-    
+                gene2go[assoc.DB_ID][assoc.NS] = [{'GO_ID':assoc.GO_ID,'Qualifier':assoc.Qualifier}]
+        else:
+            gene2go[assoc.DB_ID] = {assoc.NS:[{'GO_ID':assoc.GO_ID,'Qualifier':assoc.Qualifier}]}
+
     return gene2go
 
 
@@ -74,7 +70,7 @@ def main():
     nx.set_node_attributes(gene_ontology,'GO','label')
     nx.set_node_attributes(phenotype_ontology,'HPO','label')
 
-    gene2go = get_goa('NCBI')
+    gene2go = get_goa(roject_dir / 'data/gene2go')
 
     gard_gene_df = pd.read_csv(project_dir / 'data/gard2gene.csv')
     gard_phen_df = pd.read_csv(project_dir / 'data/gard2hpo.csv')
