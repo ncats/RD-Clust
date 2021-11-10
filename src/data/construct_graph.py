@@ -64,13 +64,13 @@ def construct_disease_subgraph(gard_gene_df, gard_phen_df,gene2go):
 def main():
     project_dir = Path(__file__).resolve().parents[2]
 
-    gene_ontology = obonet.read_obo(sys.argv[1]).to_undirected()
-    phenotype_ontology  = obonet.read_obo(sys.argv[2]).to_undirected()
+    gene_ontology = obonet.read_obo(project_dir /sys.argv[1]).to_undirected()
+    phenotype_ontology  = obonet.read_obo(project_dir /sys.argv[2]).to_undirected()
 
     nx.set_node_attributes(gene_ontology,'GO','label')
     nx.set_node_attributes(phenotype_ontology,'HPO','label')
 
-    gene2go = get_goa(roject_dir / 'data/gene2go')
+    gene2go = get_goa(project_dir / 'data/gene2go')
 
     gard_gene_df = pd.read_csv(project_dir / 'data/gard2gene.csv')
     gard_phen_df = pd.read_csv(project_dir / 'data/gard2hpo.csv')
