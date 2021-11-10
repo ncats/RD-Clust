@@ -4,16 +4,12 @@ project_dir = projectDir
 
 ontologies = Channel.from('go','hp')
 
-process get_neo4j_data {
-
-    script:
-    """
-    python ${project_dir}/src/data/query_neo4j.py
-    """
-
-}
-
 process get_ontologies {
+
+    
+    executor 'slurm'
+    
+    memory '8 GB'   
 
     input:
     val ont from ontologies
@@ -33,6 +29,11 @@ process get_ontologies {
 }
 
 process contruct_graph {
+   
+    executor 'slurm'
+    
+    memory '16 GB'
+
     input:
     val flag from done_ch.collect()
     
