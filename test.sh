@@ -5,6 +5,7 @@
 #SBATCH --mail-type BEGIN,END
 #
 
-which python
+#woo hoo from local
+#hello from remote
 python -c "import mygene"
 
