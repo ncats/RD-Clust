@@ -59,7 +59,7 @@ def construct_disease_subgraph(gard_gene_df, gard_phen_df,gene2go):
         
         for hpo in phens.HPO_ID:
             disease_gene_phen_subgraph.add_node(hpo,label='HPO')
-            disease_gene_phen_subgraph.add_edge('GARD:{}'.format(dis),hpo,key="presents")
+            disease_gene_phen_subgraph.add_edge(dis,hpo,key="presents")
     
     return disease_gene_phen_subgraph
 
