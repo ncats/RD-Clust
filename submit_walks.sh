@@ -3,6 +3,7 @@
 #SBATCH --mem=4g
 #SBATCH --cpus-per-task=1
 #SBATCH --ntasks=1
+#SBATCH --mail-type=END
 
 python src/model/generate_walks.py \
 data/disease_ontograph.pkl \
