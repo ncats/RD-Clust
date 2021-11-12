@@ -1,14 +1,17 @@
 name: rdclust
 channels:
   - conda-forge
+  - anaconda
   - bioconda
   - defaults
 dependencies:
+  - python=3.8 
   - pip
-  - python=3.8
   - scipy
   - numpy
   - pandas
   - networkx
   - statsmodels
   - nextflow
+  - scikit-learn
+  - gensim

@@ -15,7 +15,7 @@ process get_ontologies {
 
     output:
     file 'reasoned.obo'
-    val true into done_ch
+    val true into got_ont
 
     publishDir 'data', saveAs: {filename -> "$ont-reasoned.obo"}
 
@@ -32,11 +32,33 @@ process contruct_graph {
     //memory '16 GB'
 
     input:
-    val flag from done_ch.collect()
+    val flag from got_ont.collect()
+
+    output:
+    val true into built_graph
     
     script:
     """
     python ${project_dir}/src/data/construct_graph.py data/go-reasoned.obo data/hp-reasoned.obo 
+    """
+
+}
+
+
+walk_lengths = Channel.from()
+
+process generate_walks {
+    //executor 'slurm'
+    //memory '8 GB'
+
+    input:
+    val flag from built_graph
+
+    script:
+    """
+    python ${project_dir}/src/model/generate_walks.py \
+    ${project_dir}/data/disease_ontograph.pkl \
+
     """
 
 }
