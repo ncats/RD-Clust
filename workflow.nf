@@ -7,8 +7,8 @@ ontologies = Channel.from('go','hp')
 process process_ontologies {
 
     
-    executor 'slurm'
-    memory '8 GB'   
+    //executor 'slurm'
+    //memory '8 GB'   
 
     input:
     val ont from ontologies
@@ -28,8 +28,8 @@ process process_ontologies {
 
 process contruct_graph {
    
-    executor 'slurm'
-    memory '16 GB'
+    //executor 'slurm'
+    //memory '16 GB'
 
     input:
     val flag from got_ont.collect()
@@ -43,24 +43,3 @@ process contruct_graph {
     """
 
 }
-
-
-walk_lengths = Channel.from()
-
-process generate_walks {
-    //executor 'slurm'
-    //memory '8 GB'
-
-    input:
-    val flag from built_graph
-
-    script:
-    """
-    python ${project_dir}/src/model/generate_walks.py \
-    ${project_dir}/data/disease_ontograph.pkl \
-
-    """
-
-}
-
-
