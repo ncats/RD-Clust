@@ -2,7 +2,6 @@
 
 project_dir = projectDir
 
-ontologies = Channel.from('go','hp')
 
 process process_ontologies {
 

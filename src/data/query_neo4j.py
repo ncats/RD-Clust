@@ -100,8 +100,8 @@ def main():
     gard_gene_df = get_gene_data(session)
     gard_phen_df = get_phen_data(session)
 
-    gard_gene_df.to_csv(project_dir / 'data/gard2gene.csv',index=False)
-    gard_phen_df.to_csv(project_dir / 'data/gard2hpo.csv',index=False)
+    gard_gene_df.to_csv(project_dir / 'data/raw/gard2gene.csv',index=False)
+    gard_phen_df.to_csv(project_dir / 'data/raw/gard2hpo.csv',index=False)
 
 if __name__=="__main__":
     main()
