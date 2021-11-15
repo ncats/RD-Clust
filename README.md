@@ -2,6 +2,7 @@
 
 ## Workflow:
 
+### Set up data directory
 ### Get the raw data
 ### Process the ontologies into a graph
 ### Generate random walks
