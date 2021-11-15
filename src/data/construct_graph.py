@@ -72,10 +72,10 @@ def main():
     nx.set_node_attributes(gene_ontology,'GO','label')
     nx.set_node_attributes(phenotype_ontology,'HPO','label')
 
-    gene2go = get_goa(project_dir / 'data/gene2go')
+    gene2go = get_goa(project_dir / 'data/raw/gene2go')
 
-    gard_gene_df = pd.read_csv(project_dir / 'data/gard2gene.csv')
-    gard_phen_df = pd.read_csv(project_dir / 'data/gard2hpo.csv')
+    gard_gene_df = pd.read_csv(project_dir / 'data/raw/gard2gene.csv')
+    gard_phen_df = pd.read_csv(project_dir / 'data/raw/gard2hpo.csv')
 
     disease_subgraph = construct_disease_subgraph(gard_gene_df, gard_phen_df,gene2go)
     disease_subgraph.remove_nodes_from(list(nx.isolates(disease_subgraph)))
@@ -85,7 +85,7 @@ def main():
     disease_ontograph = nx.compose_all([disease_subgraph,phenotype_ontology,gene_ontology])
     disease_ontograph.remove_nodes_from(list(nx.isolates(disease_ontograph)))
 
-    with open(project_dir / 'data/disease_ontograph.pkl', 'wb') as f:
+    with open(project_dir / 'data/processed/disease_ontograph.pkl', 'wb') as f:
         # Pickle the 'data' dictionary using the highest protocol available.
         pickle.dump(disease_ontograph, f, pickle.HIGHEST_PROTOCOL)
 
