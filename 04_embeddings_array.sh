@@ -6,9 +6,9 @@ do
     do
     
         sbatch --job-name vector_embeddings_D${vector_size}_K${context_window} \
-	    submit_walks.sh \
+	submit_embeddings.sh \
         $vector_size \
-	    $context_window
+	$context_window
 	 
     done
 done
