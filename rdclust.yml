@@ -15,3 +15,4 @@ dependencies:
   - nextflow
   - scikit-learn
   - gensim
+  - kneed

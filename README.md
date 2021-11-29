@@ -8,3 +8,10 @@
 ### Generate random walks
 ### Generate embeddings from walks
 ### Apply clustering models to the embeddings
+##### K-Means
+* Model selection: intertia elbow method
+##### MeanShift
+##### Affinity Prop
+##### DBScan
+##### OPTICS
+##### Agglomerative
