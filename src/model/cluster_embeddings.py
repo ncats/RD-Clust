@@ -20,10 +20,7 @@ def run_kmeans(disease_vectors):
     standard_vectors = StandardScaler().fit_transform(disease_vectors)
     normalized_vectors = Normalizer().fit_transform(standard_vectors)
 
-    print(normalized_vectors.shape)
-
     for k in k_values:
-        print(k)
         model = cluster.KMeans(n_clusters=k)
         model.fit(normalized_vectors)
         inertia_scores.append(model.inertia_)
@@ -44,7 +41,7 @@ def run_kmeans(disease_vectors):
     for k_opt in set(elbows):
         model = cluster.KMeans(n_clusters=k_opt)
         model.fit(normalized_vectors)
-        best_models[k] = model
+        best_models[k_opt] = model
 
     return(best_models)
 
@@ -61,10 +58,10 @@ def main():
     disease_ontograph = disease_ontograph.subgraph(components[0]).copy()
 
     diseases = [n for n in disease_ontograph.nodes if disease_ontograph.nodes[n].get('label') ==  'disease']
-    print(len(diseases))
+    
     model = Word2Vec.load(str(project_dir / embeddings_file))
     disease_vectors = model.wv[diseases]
-    print(disease_vectors.shape)
+    
     k_means_best = run_kmeans(disease_vectors)
     for k_opt in k_means_best.keys():
         model_file = os.path.basename(embeddings_file).split('.')[0] + "_KMEANS_KOPT{0}.pkl".format(k_opt)
