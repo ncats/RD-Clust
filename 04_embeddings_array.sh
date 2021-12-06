@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for vector_size in 32 64 128 256
+for vector_size in 2 4 8 16 32 64 128 256
 do
     for context_window in 8 10 12 14
     do
