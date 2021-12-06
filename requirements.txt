@@ -3,3 +3,4 @@ goatools
 mygene
 neo4j
 obonet
+s-dbw
