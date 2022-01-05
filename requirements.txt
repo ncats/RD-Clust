@@ -3,4 +3,7 @@ goatools
 mygene
 neo4j
 obonet
+nxontology
 s-dbw
+pax2graphml
+gql[all]

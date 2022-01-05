@@ -2,14 +2,70 @@
 
 import sys
 from pathlib import Path
+from collections import Counter
 import pickle
 import pandas as pd
 import obonet
 import networkx as nx
+import mygene
 
 from goatools.anno.gaf_reader import GafReader
 from goatools.base import download_ncbi_associations
 from goatools.anno.genetogo_reader import Gene2GoReader
+
+
+def get_sif_genes(sif_data):
+    ptc_genes = []
+    for i in sif_data:
+        if 'CHEBI' not in i[0]:
+            ptc_genes.append(i[0])
+        if 'CHEBI' not in i[2]:
+            ptc_genes.append(i[2])
+    return set(ptc_genes)
+
+def process_pathway_commons_sif(sif_data):
+    """
+    Process simple interaction format data as edge list
+    """
+    
+    ptc_genes = get_sif_genes(sif_data)
+
+    mg = mygene.MyGeneInfo()
+    mg_hgnc = mg.querymany(list(ptc_genes), scopes='symbol,alias', fields='entrezgene', species='human',returnall=True)
+
+    entrez_counts = Counter([i.get('query') for i in mg_hgnc['out'] if i.get('entrezgene')])
+
+    symbol2entrez = {}
+    for gene in entrez_counts.keys():
+        
+        gene_results = [result for result in mg_hgnc['out'] if (result.get('query') == gene) and (result.get('entrezgene'))]
+
+        if len(gene_results)==1:
+            symbol2entrez[gene_results[0]['query']]=gene_results[0]['entrezgene']
+        elif len(gene_results)>1:
+            scores = [result['_score'] for result in gene_results]
+            #Take the firs in the case of ties
+            best_result = gene_results[scores.index(max(scores))]
+            symbol2entrez[best_result['query']]=best_result['entrezgene']
+    
+    ptc_graph = nx.MultiGraph()
+    
+    for sif in sif_data:
+        edge = []
+        for i in [0,2]:
+            if 'CHEBI' not in sif[i]:
+                if sif[i] in symbol2entrez:
+                    ptc_graph.add_node(int(symbol2entrez[sif[i]]),label='gene')
+                    edge.append(int(symbol2entrez[sif[i]]))
+                    
+            else:
+                ptc_graph.add_node(sif[i],label='chebi')
+                edge.append(sif[i])
+                                
+        if len(edge)==2:
+            ptc_graph.add_edge(edge[0],edge[1],key=sif[1])
+
+    return ptc_graph
 
 def get_goa(goa_file):
 
@@ -80,10 +136,18 @@ def main():
     disease_subgraph = construct_disease_subgraph(gard_gene_df, gard_phen_df,gene2go)
     disease_subgraph.remove_nodes_from(list(nx.isolates(disease_subgraph)))
     
-    
 
     disease_ontograph = nx.compose_all([disease_subgraph,phenotype_ontology,gene_ontology])
     disease_ontograph.remove_nodes_from(list(nx.isolates(disease_ontograph)))
+
+    #Pathway commons chemical and gene/protein interaction data https://www.pathwaycommons.org/archives/PC2/v12/
+    with open(project_dir / 'data/raw/PathwayCommons12.All.hgnc.sif','r') as ptc_file:
+        ptc_sif = [i.strip().split('\t') for i in ptc_file.readlines()]
+
+    ptc_graph = process_pathway_commons_sif(ptc_sif)
+    disease_ontograph = nx.compose_all([disease_ontograph,ptc_graph])
+
+    print(disease_ontograph.number_of_nodes())
 
     with open(project_dir / 'data/processed/disease_ontograph.pkl', 'wb') as f:
         # Pickle the 'data' dictionary using the highest protocol available.

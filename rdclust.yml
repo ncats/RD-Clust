@@ -16,3 +16,4 @@ dependencies:
   - scikit-learn
   - gensim
   - kneed
+  - graph-tool
