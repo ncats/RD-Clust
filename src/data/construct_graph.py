@@ -75,17 +75,22 @@ def get_goa(goa_file):
     gene2go = {}
     for assoc in objanno.associations:
         if assoc.DB_ID in gene2go:
-            if assoc.NS in gene2go[assoc.DB_ID]:
-                gene2go[assoc.DB_ID][assoc.NS].append({'GO_ID':assoc.GO_ID,'Qualifier':assoc.Qualifier})
-            else:
-                gene2go[assoc.DB_ID][assoc.NS] = [{'GO_ID':assoc.GO_ID,'Qualifier':assoc.Qualifier}]
+            gene2go[assoc.DB_ID].append({'GO_ID':assoc.GO_ID,'Qualifier':assoc.Qualifier})
         else:
-            gene2go[assoc.DB_ID] = {assoc.NS:[{'GO_ID':assoc.GO_ID,'Qualifier':assoc.Qualifier}]}
+            gene2go[assoc.DB_ID] = [{'GO_ID':assoc.GO_ID,'Qualifier':assoc.Qualifier}]
 
     return gene2go
 
 
-def construct_disease_subgraph(gard_gene_df, gard_phen_df,gene2go):
+def get_leafs(ont,nodeset):
+    
+    annot_subgraph = ont.subgraph(nodeset)
+    annot_leafs = [n for n in annot_subgraph.nodes() if annot_subgraph.in_degree(n)==0]
+
+    return annot_leafs
+
+
+def construct_disease_subgraph(gard_gene_df, gard_phen_df,gene2go,gene_ontology,phenotype_ontology):
     
     disease_gene_phen_subgraph = nx.MultiGraph()
     for dis in set(gard_gene_df.GARD_ID):
@@ -102,28 +107,40 @@ def construct_disease_subgraph(gard_gene_df, gard_phen_df,gene2go):
                 
                 disease_gene_phen_subgraph.add_node(gene,label='gene')
 
-                disease_gene_phen_subgraph.add_edge(dis,gene,key="causes")
+                disease_gene_phen_subgraph.add_edge(dis,gene,key="associated_with")
                 
                 gene_annotation = gene2go.get(gene)
                 if gene_annotation is not None:
-                    for go_class in gene_annotation.keys():
-                        for annot in gene_annotation.get(go_class):
-                            
+
+                    go_leafs = get_leafs(gene_ontology,[i['GO_ID'] for i in gene_annotation])
+
+                    for annot in gene_annotation:
+                        if annot['GO_ID'] in go_leafs:
                             disease_gene_phen_subgraph.add_node(annot['GO_ID'],label='GO')
-                            
-                            disease_gene_phen_subgraph.add_edge(gene,annot['GO_ID'],key="associated_with")
-        
-        for hpo in phens.HPO_ID:
+                            rel_types = annot.get('Qualfier')
+                            if rel_types:
+                                for rel in rel_types:
+                                    disease_gene_phen_subgraph.add_edge(gene,annot['GO_ID'],key=rel)
+                            else:
+                                disease_gene_phen_subgraph.add_edge(gene,annot['GO_ID'],key="associated_with")
+
+        phen_leafs = get_leafs(phenotype_ontology,list(phens.HPO_ID))
+        for hpo in phen_leafs:
             disease_gene_phen_subgraph.add_node(hpo,label='HPO')
             disease_gene_phen_subgraph.add_edge(dis,hpo,key="presents")
     
     return disease_gene_phen_subgraph
 
+
 def main():
     project_dir = Path(__file__).resolve().parents[2]
 
-    gene_ontology = obonet.read_obo(project_dir / sys.argv[1]).to_undirected()
-    phenotype_ontology  = obonet.read_obo(project_dir / sys.argv[2]).to_undirected()
+    gene_ontology = obonet.read_obo(project_dir / sys.argv[1])#.to_undirected()
+    phenotype_ontology  = obonet.read_obo(project_dir / sys.argv[2])#.to_undirected()
+    
+    hp_remove = nx.ancestors(phenotype_ontology,"HP:0000005")
+    phenotype_ontology.remove_node("HP:0000005")
+    phenotype_ontology.remove_nodes_from(hp_remove)
 
     nx.set_node_attributes(gene_ontology,'GO','label')
     nx.set_node_attributes(phenotype_ontology,'HPO','label')
@@ -131,13 +148,15 @@ def main():
     gene2go = get_goa(project_dir / 'data/raw/gene2go')
 
     gard_gene_df = pd.read_csv(project_dir / 'data/raw/gard2gene.csv')
+    
     gard_phen_df = pd.read_csv(project_dir / 'data/raw/gard2hpo.csv')
+    gard_phen_df.drop(gard_phen_df[gard_phen_df['HPO_ID'].isin(hp_remove)].index, inplace = True)
 
-    disease_subgraph = construct_disease_subgraph(gard_gene_df, gard_phen_df,gene2go)
+    disease_subgraph = construct_disease_subgraph(gard_gene_df, gard_phen_df,gene2go,gene_ontology,phenotype_ontology)
     disease_subgraph.remove_nodes_from(list(nx.isolates(disease_subgraph)))
     
 
-    disease_ontograph = nx.compose_all([disease_subgraph,phenotype_ontology,gene_ontology])
+    disease_ontograph = nx.compose_all([disease_subgraph,phenotype_ontology.to_undirected(),gene_ontology.to_undirected()])
     disease_ontograph.remove_nodes_from(list(nx.isolates(disease_ontograph)))
 
     #Pathway commons chemical and gene/protein interaction data https://www.pathwaycommons.org/archives/PC2/v12/

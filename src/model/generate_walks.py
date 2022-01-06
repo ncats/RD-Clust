@@ -4,7 +4,7 @@ import pickle
 from pathlib import Path
 import random
 import networkx as nx
-
+from collections import Counter
 #TODO: add bias parameters
 def run_random_walks(G, nodes, walk_len, num_walks):
     #print("now we start random walk")
@@ -18,7 +18,17 @@ def run_random_walks(G, nodes, walk_len, num_walks):
             curr_node = node
             walk_accumulate=[]
             for j in range(walk_len):
-                next_node = random.choice(list(G.neighbors(curr_node)))
+
+                #When on disease nodes, balance out steps by connecting node type
+                if G.nodes[curr_node].get('label') == 'disease':
+                    node_neighbors = G.neighbors(curr_node)
+                    node_neighbor_labels = [ G.nodes[nn].get('label') for nn in node_neighbors ]
+                    type_counts = Counter(node_neighbor_labels)
+                    node_probs = [1/(len(type_counts)*type_counts[i]) for i in node_neighbor_labels]
+                    next_node = random.choices(list(G.neighbors(curr_node)),weights=node_probs,k=1)[0]
+
+                else: 
+                    next_node = random.choice(list(G.neighbors(curr_node)))
 
                 edge_type = random.choice(list(G.get_edge_data(curr_node, next_node).keys()))
 
