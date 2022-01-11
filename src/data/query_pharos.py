@@ -1,6 +1,7 @@
 from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
 import json
+import csv
 from pathlib import Path
 
 
@@ -12,146 +13,100 @@ def main():
     # Create a GraphQL client using the defined transport
     client = Client(transport=transport, fetch_schema_from_transport=True,execute_timeout=None)
 
-    count_query = gql(
-        """
-        query {
-            targets{
-                count
-            }
-        }
-        """
-    )
+    ligand_query_string = """
+        query downloadQuery {{
+  download(
+    model: "Targets"
+    fields: [
+      "UniProt"
+      "Symbol"
+      "Ligand Name"
+      "Ligand Is Drug"
+      "Ligand SMILES"
+      "Ligand PubChem ID"
+      "Ligand ChEMBL ID"
+      "Ligand DrugCentral ID"
+      "Ligand PubMed IDs"
+      "Preferred Term"
+      "UNII"
+    ]
+    sqlOnly: false
+    top:  {0}
+    skip: {1}
+    filter: {{
+      facets: [
+        {{ facet: "Target Development Level", values: ["Tchem","Tclin"], upSets: [] }}
+      ]
+    }}
+  ) {{
+    result
+    data
+  }}
+}}
+    """    
 
-    tchem_query_1='''
-    query facetsForAllTargets {
-        targets (filter: {
-            facets: [{
-                facet: "Target Development Level",
-                values: ["Tchem"]
-            }]
-        }) {
-            count
-            targets (top:1930){
-            name
-            tdl
-            fam
-            sym
-            ligands {
-                ligid
-                name
-                isdrug
-            }
-            }
-        }
-    }
-    '''
-
-    tchem_query_1='''
-    query facetsForAllTargets {
-        targets (filter: {
-            facets: [{
-                facet: "Target Development Level",
-                values: ["Tchem"]
-            }]
-        }) {
-            count
-            targets (top:1930){
-            name
-            tdl
-            fam
-            sym
-            ligands {
-                ligid
-                name
-                isdrug
-            }
-            }
-        }
-    }
-    '''
-
-    tchem_query_2='''
-    query {
-        targets (filter: {
-            facets: [{
-                facet: "Target Development Level",
-                values: ["Tchem"]
-            }]
-        }) {
-            count
-            targets (top:1930){
-            name
-            tdl
-            fam
-            sym
-            ligands {
-                ligid
-                name
-                isdrug
-            }
-            }
-        }
-    }
-    '''
-
-    target_query_string = '''query {{
-            targets( 
-                filter: {{
-                facets: [{{
-                    facet: "Target Development Level",
-                    values: ["Tchem"]
-                }}]
-                }}
-            ) {{
-                count
-                targets(top: {0} ){{
-                    sym
-                    name
-                    tdl
-                    ligands {{
-                        ligid
-                        name
-                        isdrug
-                        synonyms {{
-                            name
-                            value
-                        }}
-                    }}
-                    diseases {{
-                        name
-                        dids{{
-                            id
-                            dataSources
-                        }}
-                        associations{{
-                            disassid
-                            type
-                            name
-                            did
-                            source
-                        }}
-                    }}
-                }}
-            }}
-        }}
-    '''    
-
-    # Execute the query on the transport
-    count_res = client.execute(count_query)
-
-    total_targets= count_res['targets']['count']
-
-    target_res_1 = client.execute(gql(tchem_query_1))
-    target_res_2 = client.execute(gql(tchem_query_2))
-
+    disease_query_string = """
+        query downloadQuery {{
+  download(
+    model: "Targets"
+    fields: [
+      "UniProt"
+      "Symbol"
+      "Disease Data Source"
+      "Associated Disease Source"
+      "Associated Disease Source ID"
+      "Associated Disease Drug Name"
+      "Linked Disease"
+    ]
+    sqlOnly: false
+    top:  {0}
+    skip: {1}
+  ) {{
+    result
+    data
+  }}
+}}
+    """      
+    
     project_dir = Path(__file__).resolve().parents[2]
-    f = open(project_dir / 'data/raw/pharos_tchem_ligands_1.json', "w")
-    json.dump(target_res_1, f,indent=4)
-    f.close()
+    
+    #Target-Ligand data
+    skip = 0
+    ligand_res = []
+    while True:
+        res = client.execute(gql(ligand_query_string.format(100000,skip)))
+        if len(res['download']['data'])>0:
+            ligand_res.extend(res['download']['data'])
+            skip +=100000
+        else:
+            break
 
-    f = open(project_dir / 'data/raw/pharos_tchem_ligands_2.json', "w")
-    json.dump(target_res_2, f,indent=4)
-    f.close()
+    ligand_file = open(project_dir / 'data/raw/pharos_all_target_ligands.csv', "w")
+    ligand_writer = csv.DictWriter(
+       ligand_file,fieldnames=ligand_res[0].keys()
+    )
+    ligand_writer.writeheader()
+    ligand_writer.writerows(ligand_res)
+    ligand_file.close()
+
+
+    #Target-Disease data
+    skip = 0
+    disease_res = []
+    while True:
+        res = client.execute(gql(disease_query_string.format(100000,skip)))
+        if len(res['download']['data'])>0:
+            disease_res.extend(res['download']['data'])
+            skip +=100000
+        else:
+            break
+    disease_file = open(project_dir / 'data/raw/pharos_all_target_diseases.csv', "w")
+    disease_writer = csv.DictWriter(
+       disease_file,fieldnames=disease_res[0].keys()
+    )
+    disease_writer.writeheader()
+    disease_writer.writerows(disease_res)
+    disease_file.close()
 
 if __name__=="__main__":
     main()

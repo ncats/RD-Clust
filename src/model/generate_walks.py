@@ -32,7 +32,7 @@ def run_random_walks(G, nodes, walk_len, num_walks):
 
                 edge_type = random.choice(list(G.get_edge_data(curr_node, next_node).keys()))
 
-                if curr_node == node:
+                if j == 0:
                     walk_accumulate.append(curr_node)
                 walk_accumulate.append(edge_type)
                 walk_accumulate.append(next_node)

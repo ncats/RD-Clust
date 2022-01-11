@@ -23,7 +23,7 @@ def get_sif_genes(sif_data):
             ptc_genes.append(i[2])
     return set(ptc_genes)
 
-def process_pathway_commons_sif(sif_data):
+def process_pathway_commons_sif(sif_data,gene2go,gene_ontology):
     """
     Process simple interaction format data as edge list
     """
@@ -55,16 +55,35 @@ def process_pathway_commons_sif(sif_data):
         for i in [0,2]:
             if 'CHEBI' not in sif[i]:
                 if sif[i] in symbol2entrez:
-                    ptc_graph.add_node(int(symbol2entrez[sif[i]]),label='gene')
-                    edge.append(int(symbol2entrez[sif[i]]))
+                    gene = int(symbol2entrez[sif[i]])
+                    edge.append(gene)
+                    if not gene in ptc_graph:
+
+                        ptc_graph.add_node(gene,label='gene')
                     
+                        gene_annotation = gene2go.get(gene)
+                        if gene_annotation is not None:
+
+                            go_leafs = get_leafs(gene_ontology,[i['GO_ID'] for i in gene_annotation])
+
+                            for annot in gene_annotation:
+                                if annot['GO_ID'] in go_leafs:
+                                    ptc_graph.add_node(annot['GO_ID'],label='GO')
+                                    rel_types = annot.get('Qualfier')
+                                    if rel_types:
+                                        for rel in rel_types:
+                                            ptc_graph.add_edge(gene,annot['GO_ID'],key=rel)
+                                    else:
+                                        ptc_graph.add_edge(gene,annot['GO_ID'],key="associated_with")
             else:
                 ptc_graph.add_node(sif[i],label='chebi')
                 edge.append(sif[i])
                                 
         if len(edge)==2:
             ptc_graph.add_edge(edge[0],edge[1],key=sif[1])
-
+    
+    print("PTC Associated GO TERMS:\n")
+    print([n for n in ptc_graph.nodes if ptc_graph.nodes[n].get('label') ==  'GO'])
     return ptc_graph
 
 def get_goa(goa_file):
@@ -163,7 +182,7 @@ def main():
     with open(project_dir / 'data/raw/PathwayCommons12.All.hgnc.sif','r') as ptc_file:
         ptc_sif = [i.strip().split('\t') for i in ptc_file.readlines()]
 
-    ptc_graph = process_pathway_commons_sif(ptc_sif)
+    ptc_graph = process_pathway_commons_sif(ptc_sif,gene2go,gene_ontology)
     disease_ontograph = nx.compose_all([disease_ontograph,ptc_graph])
 
     print(disease_ontograph.number_of_nodes())
