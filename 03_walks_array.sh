@@ -1,8 +1,8 @@
 #!/bin/bash
 
-for nwalks in 5 10 20 30 40 50
+for nwalks in 5 10 20 30 40 50 60 70
 do
-    for walklen in 50 75 100 125 150
+    for walklen in 50 75 100 125 150 175
     do
         sbatch --job-name random_walks_N${nwalks}_L${walklen} \
 	submit_walks.sh \
