@@ -26,6 +26,12 @@ def main():
       "Ligand PubChem ID"
       "Ligand ChEMBL ID"
       "Ligand DrugCentral ID"
+      "Ligand Description"
+      "Ligand Activity"
+      "Ligand Activity Type"
+      "Ligand Action"
+      "Ligand References"
+      "Ligand Reference Source"
       "Ligand PubMed IDs"
       "Preferred Term"
       "UNII"
@@ -52,11 +58,13 @@ def main():
     fields: [
       "UniProt"
       "Symbol"
-      "Disease Data Source"
-      "Associated Disease Source"
-      "Associated Disease Source ID"
-      "Associated Disease Drug Name"
       "Linked Disease"
+      "Mondo ID"
+      "Associated Disease Source ID"
+      "Disease Data Source"
+      "Associated Disease Evidence"
+      "Associated Disease Source"
+      "Associated Disease Drug Name"
     ]
     sqlOnly: false
     top:  {0}
@@ -80,13 +88,14 @@ def main():
             skip +=100000
         else:
             break
-
+    
+    uniq_ligand_rows = list(map(dict, frozenset(frozenset(i.items()) for i in ligand_res)))
     ligand_file = open(project_dir / 'data/raw/pharos_all_target_ligands.csv', "w")
     ligand_writer = csv.DictWriter(
-       ligand_file,fieldnames=ligand_res[0].keys()
+       ligand_file,fieldnames=ligand_res[0].keys() #use raw result to maintain order
     )
     ligand_writer.writeheader()
-    ligand_writer.writerows(ligand_res)
+    ligand_writer.writerows(uniq_ligand_rows)
     ligand_file.close()
 
 
@@ -100,12 +109,14 @@ def main():
             skip +=100000
         else:
             break
+
+    uniq_disease_rows = list(map(dict, frozenset(frozenset(i.items()) for i in disease_res)))
     disease_file = open(project_dir / 'data/raw/pharos_all_target_diseases.csv', "w")
     disease_writer = csv.DictWriter(
-       disease_file,fieldnames=disease_res[0].keys()
+       disease_file,fieldnames=disease_res[0].keys() #use raw result to maintain order
     )
     disease_writer.writeheader()
-    disease_writer.writerows(disease_res)
+    disease_writer.writerows(uniq_disease_rows)
     disease_file.close()
 
 if __name__=="__main__":

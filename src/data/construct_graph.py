@@ -47,7 +47,7 @@ def process_pharos_data(pharos_data,small_molecule_set,gene2go,gene_ontology):
         if uniprot in uniprot2entrez:
             for gene in uniprot2entrez[uniprot]:
                 #print([uniprot,gene])
-                pharos_graph.add_node(int(gene),key='gene')
+                pharos_graph.add_node(int(gene),label='gene')
                 edge.append(int(gene))
                 gene_annotation = gene2go.get(int(gene))
 
@@ -67,13 +67,13 @@ def process_pharos_data(pharos_data,small_molecule_set,gene2go,gene_ontology):
                 #Use ChEMBL first if possible, unless pathway commons ChEBI only mapped to PubChem or Pharos only gave PubChem
                 if chembl:
                     if pubchem and (('PUBCHEM:' + pubchem) in small_molecule_set):
-                        pharos_graph.add_node(('PUBCHEM:' + pubchem),key='SmallMolecule')
+                        pharos_graph.add_node(('PUBCHEM:' + pubchem),label='SmallMolecule')
                         edge.append(('PUBCHEM:' + pubchem))
                     else:
-                        pharos_graph.add_node(('CHEMBL:' + chembl),key='SmallMolecule')
+                        pharos_graph.add_node(('CHEMBL:' + chembl),label='SmallMolecule')
                         edge.append(('CHEMBL:' + chembl))
                 elif pubchem:
-                    pharos_graph.add_node(('PUBCHEM:' + pubchem),key='SmallMolecule')
+                    pharos_graph.add_node(('PUBCHEM:' + pubchem),label='SmallMolecule')
                     edge.append(('PUBCHEM:' + pubchem))
                 else:
                     continue
