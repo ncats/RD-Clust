@@ -1,12 +1,8 @@
 #!/bin/bash
-for i in 2 4 8 16
+for efile in data/embeddings/*.model
 do
 
-	for efile in data/embeddings/*_D${i}_*.model
-	do
-
-   		sbatch submit_clusters.sh $efile
+	sbatch submit_clusters.sh $efile
 	
-	done 
-done
+done 
 
