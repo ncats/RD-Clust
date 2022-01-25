@@ -47,7 +47,7 @@ def process_pharos_data(pharos_data,small_molecule_set,gene2go,gene_ontology):
         if uniprot in uniprot2entrez:
             for gene in uniprot2entrez[uniprot]:
                 #print([uniprot,gene])
-                pharos_graph.add_node(int(gene),key='gene')
+                pharos_graph.add_node(int(gene),label='gene')
                 edge.append(int(gene))
                 gene_annotation = gene2go.get(int(gene))
 
