@@ -21,7 +21,7 @@ def main():
                                     min_count=1, 
                                     vector_size=vector_size, 
                                     window=context_size,
-                                    epochs=10,
+                                    epochs=15,
                                     workers=4)
     model.save(model_file_path) 
 
