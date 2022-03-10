@@ -53,13 +53,16 @@ def main():
 
     diseases_inwalks = list(set([w.split()[0] for w in walks]))
 
-    disease_windows = Parallel(n_jobs=-1)(delayed(get_windows)(disease,walks,context_size) for disease in diseases_inwalks[0:10])
+    disease_windows = Parallel(n_jobs=-1)(delayed(get_windows)(disease,walks,context_size) for disease in diseases_inwalks)
     disease_windows_combined = {dis: w_list for w_set in disease_windows for dis, w_list in w_set.items()}
 
     cluster_walk_annotations=[]
-    for d in diseases_inwalks[0:10]:
+    for d in diseases_inwalks:
         dis_w = flatten(disease_windows_combined[d])
-        clust  = cluster_map[d]
+        clust  = cluster_map.get(d)
+
+        if clust is None:
+            continue
 
         #Removal of edge types should be done earlier to for efficieincey
         dis_clust_annot = [i for i in dis_w if (i in disease_ontograph.nodes) & ('GARD' not in i)]
