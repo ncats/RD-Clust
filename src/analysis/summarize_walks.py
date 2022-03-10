@@ -28,6 +28,7 @@ def get_windows(disease,walks,context_size):
     
     return {disease:d_win}
 
+
 def main():
     project_dir = Path(__file__).resolve().parents[2]
     walk_file = sys.argv[1]
@@ -71,7 +72,7 @@ def main():
         for i in cluster_walk_annotations:
             annot_file.write("\t".join(i) + '\n')
             #annot_file.writelines(["\t".join(str(i)) for i in cluster_walk_annotations])
-
+    
 
 if __name__=="__main__":
     main()
