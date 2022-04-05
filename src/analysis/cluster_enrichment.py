@@ -62,7 +62,7 @@ def main():
     walk_annot_file = sys.argv[2]
     P = int(sys.argv[3]) #sets of perms
 
-    p = 100 #perms per set
+    p = 10000 #perms per set
     tot_perm = P*p
 
     #TODO:move these into parser
