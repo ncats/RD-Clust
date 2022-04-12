@@ -1,7 +1,20 @@
 #!/bin/bash
 
-#Neo4J data from disease.ncats.io
-python src/data/query_neo4j.py
+export $(cat config.env | xargs)
+
+#GARD2.0 Data Lake data from Palantir
+curl -X GET -o "data/raw/disease_genes_palantir.csv" -H "Authorization: Bearer ${PALANTIR_KEY}" \
+"https://nidap.nih.gov/foundry-data-proxy/api/dataproxy/datasets/\
+${GENE_DATA_RID}/\
+branches/master/csv?includeColumnNames=true"
+
+curl -X GET -o "data/raw/disease_phenotypes_palantir.csv" -H "Authorization: Bearer ${PALANTIR_KEY}" \
+"https://nidap.nih.gov/foundry-data-proxy/api/dataproxy/datasets/\
+${PHENOTYPE_DATA_RID}/\
+branches/master/csv?includeColumnNames=true"
+
+#Enrich genes with NCBI ID and drop uneeded columns
+python src/data/preprocess_disease_data.py
 
 #Gene target - ligand/drug data from Pharos
 python src/data/query_pharos.py
