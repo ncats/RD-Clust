@@ -18,12 +18,15 @@ def scatter_crit(X,labels):
         uk = np.mean(X[labels == k],axis=0)
         if k == 0:
             Sw = np.cov(X[labels == k],rowvar=False)*(Nk-1)
-            Sb = Nk*np.outer(uk-u,uk-u)
+            Sb_0 = np.outer(uk-u,uk-u)
+            Sb = Nk*Sb_0
         else:
             Sw += np.cov(X[labels == k],rowvar=False)*(Nk-1)
-            Sb += Nk*np.outer(uk-u,uk-u)
+            Sb_0_k = np.outer(uk-u,uk-u)
+            Sb_0 += Sb_0_k
+            Sb += Nk*Sb_0_k
         
-    return np.trace(np.matmul(np.linalg.inv(Sw),Sb)) 
+    return {'scattering_0':np.trace(np.matmul(np.linalg.inv(Sw),Sb_0)),'scattering':np.trace(np.matmul(np.linalg.inv(Sw),Sb))} 
 
 def summarize_model(m_file,diseases,project_dir): 
         m_pars = os.path.splitext(m_file)[0].split("_")
@@ -56,8 +59,10 @@ def summarize_model(m_file,diseases,project_dir):
         mdata['silhouette_euclidean'] = metrics.silhouette_score(normalized_vectors, cluster_model.labels_, metric='euclidean')
         mdata['davies_bouldin'] = metrics.davies_bouldin_score(normalized_vectors, cluster_model.labels_)
         mdata['calinski_harabasz'] = metrics.calinski_harabasz_score(normalized_vectors, cluster_model.labels_)
-        mdata['scattering_criteria'] = scatter_crit(normalized_vectors,cluster_model.labels_)
-                                                                                                                                    
+        scat = scatter_crit(normalized_vectors,cluster_model.labels_)
+        mdata['scattering_criteria'] = scat['scattering']
+        mdata['scattering_criteria_0'] = scat['scattering_0']
+        
         return mdata
 
 def main():
