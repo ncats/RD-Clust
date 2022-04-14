@@ -81,8 +81,7 @@ def process_pharos_data(pharos_data,small_molecule_set,gene2go,gene_ontology):
                 if len(edge) == 2:
                     ec += 1
                     pharos_graph.add_edge(edge[0],edge[1],key="chemical-affects")
-    print("Total edges added {0}".format(ec))
-    print("Total unique edges in graph {0}".format(pharos_graph.number_of_edges()))
+
     return pharos_graph
 
 def get_sif_genes(sif_data):
@@ -191,7 +190,7 @@ def get_leafs(ont,nodeset):
 def construct_disease_subgraph(gard_gene_df, gard_phen_df,gene2go,gene_ontology,phenotype_ontology):
     
     disease_gene_phen_subgraph = nx.MultiGraph()
-    for dis in set(gard_gene_df.GARD_ID):
+    for dis in set(gard_gene_df.GARD_ID).union(set(gard_phen_df.GARD_ID)):
         genes = gard_gene_df[gard_gene_df.GARD_ID == dis]
         phens = gard_phen_df[gard_phen_df.GARD_ID == dis]
         
@@ -289,6 +288,11 @@ def main():
     disease_ontograph.remove_nodes_from(list(nx.isolates(disease_ontograph)))
 
     disease_ontograph = nx.compose_all([disease_ontograph,ptc_graph,pharos_graph])
+
+    diseases = [n for n in disease_ontograph.nodes if disease_ontograph.nodes[n].get('label') ==  'disease']
+    print("Total nodes added {0}".format(disease_ontograph.number_of_nodes()))
+    print("Total edges in graph {0}".format(disease_ontograph.number_of_edges()))
+    print("Total disease nodes in graph {0}".format(len(diseases)))
 
     with open(project_dir / 'data/processed/disease_ontograph.pkl', 'wb') as f:
         # Pickle the 'data' dictionary using the highest protocol available.
