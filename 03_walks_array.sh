@@ -1,8 +1,8 @@
 #!/bin/bash
 
-for nwalks in 80 100 120
+for nwalks in 5 10 25 50 75 100 125 150 175 200 225 250
 do
-    for walklen in 25 50 75 100
+    for walklen in 25 50 75 100 125 150 175 200 225 250 
     do
         wfile="data/walks/walks_N${nwalks}_L${walklen}.txt"
         if [ ! -f "$wfile" ]; then
