@@ -1,24 +1,26 @@
-import sys
-import os
 import pickle
-import glob
-import scipy.stats as stats
+from pathlib import Path
+from joblib import Parallel, delayed
 
 import networkx as nx
 import pandas as pd
-import numpy as np
-
-
-from sklearn import cluster,metrics
 from nxontology.imports import from_file
-from joblib import Parallel, delayed
 
+
+def semantic_sim(ontology,entities,ont_map,metric='intrinsic_ic_sanchez'):
+    # TODO:
+    # Check if entities are in map
+    # Check if mapped entities are in ontology
+    # Check if metric is valid
+    # Try and catch
+    sim = ontology.similarity(ont_map[entities[0]],ont_map[entities[1]], ic_metric=metric).lin
+
+    return {entities:sim}
 
 def main():
     
     project_dir = Path(__file__).resolve().parents[2]
-    model_files = glob.glob(str(project_dir / "data/clusters/kmeans/*.pkl"))
-    #print(model_files[0])
+    
     with open(project_dir / "data/processed/disease_ontograph.pkl", 'rb') as f:
         disease_ontograph = pickle.load(f)
     #Remove unconnected components
@@ -26,24 +28,25 @@ def main():
     disease_ontograph = disease_ontograph.subgraph(components[0]).copy()
 
     diseases = [n for n in disease_ontograph.nodes if disease_ontograph.nodes[n].get('label') ==  'disease']
+        
+    gard_gene_raw = pd.read_csv(project_dir / 'data/raw/disease_genes_palantir.csv')
+    gard_phen_raw =  pd.read_csv(project_dir / 'data/raw/disease_phenotypes_palantir.csv')
+
+    gard_diseases = pd.concat([gard_gene_raw[['OrphaCode','curie','label']],gard_phen_raw[['OrphaCode','curie','label']]],axis=0).drop_duplicates().reset_index()
+
+    ordo = from_file(project_dir / 'data/raw/ordo_orphanet.owl')
+    gard2orpha = {i:'http://www.orpha.net/ORDO/Orphanet_{0}'.format(j) for i,j in zip(gard_diseases['curie'],gard_diseases['OrphaCode'])}
     
-    disease_cluster_data = pd.read_csv(project_dir / "data/processed/disease_cluster_information.csv")
-    gard_mondo = pd.read_csv(project_dir / "data/raw/gard2mondo.csv")
-    gard2mondo = {row[1]['GARD_ID']:row[1]['MONDO_ID'] for row in gard_mondo.iterrows()}
+    tuple_list = []
+    for i in range(10):#range(len(gard2orpha)):
+        for j in range(i+1,10):#range(i+1,len(gard2orpha)):
+            tuple_list.append((gard_diseases['curie'][i],gard_diseases['curie'][j]))
 
-    N = 80
-    L = 25
-    D = 512 
-    K_dim = 10
-    m_file = project_dir / "data/clusters/kmeans/ontograph_embed_N{0}_L{1}_D{2}_K{3}_KMEANS_KOPT37.pkl".format(N,L,D,K_dim)
-
-    mondo = from_file('http://purl.obolibrary.org/obo/mondo.obo')
-    mondo_dz = [gard2mondo[i] for i in diseases if gard2mondo[i] in mondo.graph]
-
-    model_evals = Parallel(n_jobs=-1)(delayed(summarize_model)(m_file,diseases,project_dir) for m_file in model_files)
-   
-    model_eval_df = pd.DataFrame(model_evals)
-    model_eval_df.to_csv(project_dir / "data/processed/kmeans_model_metrics.csv",index=False)
+    ordo_sim = Parallel(n_jobs=-1)(delayed(semantic_sim)(ordo,entities,gard2orpha,"intrinsic_ic_sanchez") for entities in tuple_list)
+    ordo_sim_dict = {dis: sim for dis_sim in ordo_sim for dis, sim in dis_sim.items()}
+    with open(project_dir / 'data/processed/ordo_semantic_similarity.pkl', 'wb') as f:
+        # Pickle the 'data' dictionary using the highest protocol available.
+        pickle.dump(ordo_sim_dict, f, pickle.HIGHEST_PROTOCOL)
 
 if __name__=="__main__":
     main()
