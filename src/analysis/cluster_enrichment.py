@@ -79,8 +79,8 @@ def main():
     diseases_in_graph = [n for n in disease_ontograph.nodes if disease_ontograph.nodes[n].get('label') ==  'disease']
     cluster_map = {d:cluster_model.labels_[i] for i,d in enumerate(diseases_in_graph)}  
 
-    walk_annotations = pd.read_table(project_dir / walk_annot_file,index_col=None)
-    walk_annotation_counts = walk_annotations[['Cluster','Disease','Annotation','Count']]
+    #walk_annotations = pd.read_table(project_dir / walk_annot_file,index_col=None)
+    #walk_annotation_counts = walk_annotations[['Cluster','Disease','Annotation','Count']]
 
     gard_gene_data = pd.read_csv(project_dir / "data/raw/gard2gene.csv")
     gard_gene_data = gard_gene_data[gard_gene_data.Gene_ID.isnull()==False]
@@ -93,13 +93,13 @@ def main():
     gene_annotation_counts.columns = ['Cluster','Disease','Annotation','Count']
 
     gene_perm_sets = Parallel(n_jobs=-1)(delayed(permute_annotation_counts)(diseases_in_graph,gene_annotation_counts,cluster_model,p) for i in range(P))
-    walk_perm_sets = Parallel(n_jobs=-1)(delayed(permute_annotation_counts)(diseases_in_graph,walk_annotation_counts,cluster_model,p) for i in range(P))
+    #walk_perm_sets = Parallel(n_jobs=-1)(delayed(permute_annotation_counts)(diseases_in_graph,walk_annotation_counts,cluster_model,p) for i in range(P))
     
     gene_perm_results = calculate_perm_pvalue(gene_perm_sets,gene_annotation_counts,tot_perm)
-    walk_perm_results = calculate_perm_pvalue(walk_perm_sets,walk_annotation_counts,tot_perm)
+    #walk_perm_results = calculate_perm_pvalue(walk_perm_sets,walk_annotation_counts,tot_perm)
 
     gene_perm_results.to_csv(project_dir / 'data/processed/gene_annotation_enrichment.csv',index=False)
-    walk_perm_results.to_csv(project_dir / 'data/processed/walk_annotation_enrichment.csv',index=False)
+    #walk_perm_results.to_csv(project_dir / 'data/processed/walk_annotation_enrichment.csv',index=False)
 
 if __name__=="__main__":
     main()
