@@ -52,10 +52,14 @@ def main():
     project_dir = Path(__file__).resolve().parents[2]
 
     gard_gene_raw = pd.read_csv(project_dir / 'data/raw/disease_genes_palantir.csv')
+    non_root_gene_raw = pd.read_csv(project_dir / 'data/raw/non_root_disease_genes_palantir.csv')
     gard_phen_raw =  pd.read_csv(project_dir / 'data/raw/disease_phenotypes_palantir.csv')
 
     
     gard_gene_raw = gard_gene_raw[['curie','label','genes_association_type','genes_gene_symbol','genes_curie']]
+    non_root_gene_raw = non_root_gene_raw[['curie','label','genes_association_type','genes_gene_symbol','genes_curie']]
+
+    gard_gene_raw = pd.concat([gard_gene_raw,non_root_gene_raw]).drop_duplicates().reset_index(drop=True)
     gard_gene_raw = gard_gene_raw[gard_gene_raw['genes_curie'].isnull()==False]
     gard_gene_raw['HGNC'] = gard_gene_raw.apply(lambda row:row.genes_curie.split(':')[1],axis=1)
     gard_gene_raw.drop('genes_curie',axis=1,inplace=True)
