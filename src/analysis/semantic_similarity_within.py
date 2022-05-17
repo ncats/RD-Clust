@@ -7,15 +7,18 @@ import pandas as pd
 from nxontology.imports import from_file
 
 
-def semantic_sim(ontology,entities,ont_map,metric='intrinsic_ic_sanchez'):
+def semantic_sim_set(ontology,ont_map,metric,cluster,tups):
     # TODO:
     # Check if entities are in map
     # Check if mapped entities are in ontology
     # Check if metric is valid
     # Try and catch
-    sim = ontology.similarity(ont_map[entities[0]],ont_map[entities[1]], ic_metric=metric).lin
+    print(str(cluster)+'\n')
+    sim = {}
+    for entities in tups:
+        sim[entities] = ontology.similarity(ont_map[entities[0]],ont_map[entities[1]], ic_metric=metric).lin
 
-    return {entities:sim}
+    return {cluster:sim}
 
 def main():
     
@@ -36,17 +39,35 @@ def main():
 
     ordo = from_file(project_dir / 'data/raw/ordo_orphanet.owl')
     gard2orpha = {i:'http://www.orpha.net/ORDO/Orphanet_{0}'.format(j) for i,j in zip(gard_diseases['curie'],gard_diseases['OrphaCode'])}
-    
-    tuple_list = []
-    for i in range(len(gard2orpha)):
-        for j in range(i+1,len(gard2orpha)):
-            tuple_list.append((gard_diseases['curie'][i],gard_diseases['curie'][j]))
 
-    ordo_sim = Parallel(n_jobs=-1)(delayed(semantic_sim)(ordo,entities,gard2orpha,"intrinsic_ic_sanchez") for entities in tuple_list)
-    ordo_sim_dict = {dis: sim for dis_sim in ordo_sim for dis, sim in dis_sim.items()}
-    with open(project_dir / 'data/processed/ordo_semantic_similarity.pkl', 'wb') as f:
+
+    with open(project_dir / 'data/clusters/kmeans/ontograph_embed_N250_L250_D32_K20_KMEANS_KOPT35.pkl', 'rb') as f:
+        cluster_model = pickle.load(f)
+                
+    cluster_map = {dis:cluster_model.labels_[i] for i,dis in enumerate(diseases)}
+
+    cluster_sets = {i:[] for i in set(cluster_model.labels_)}
+
+    for i in cluster_map:
+        cluster_sets[cluster_map[i]].append(i)
+
+    cluster_tuples = {i:[] for i in set(cluster_model.labels_)}
+
+    for cluster in cluster_sets:
+        cluster_disease = cluster_sets[cluster]
+        for i in range(len(cluster_disease)):
+            for j in range(i+1,len(cluster_disease)):
+                cluster_tuples[cluster].append((cluster_disease[i],cluster_disease[j]))
+
+    print("starting parallel loop\n")
+
+    within_cluster_sim = Parallel(n_jobs=-1)(delayed(semantic_sim_set)(ordo,gard2orpha,"intrinsic_ic_sanchez",cluster,tups) for cluster, tups in cluster_tuples.items())
+
+    print("Finished parallel loop\n")
+
+    with open(project_dir / 'data/processed/ordo_semantic_similarity_within_cluster_test.pkl', 'wb') as f:
         # Pickle the 'data' dictionary using the highest protocol available.
-        pickle.dump(ordo_sim_dict, f, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(within_cluster_sim, f, pickle.HIGHEST_PROTOCOL)
 
 if __name__=="__main__":
     main()
