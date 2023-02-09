@@ -1,0 +1,7 @@
+2021-11-10 14:35:58	2.4s	reverent_fermi	ERR	b35388876c2068568eee04286eb77e4d	dd6db0c1-8965-4e31-b73f-52488cb1929e	nextflow run workflow.nf
+2021-11-10 14:36:33	2.7s	angry_wescoff	ERR	b35388876c2068568eee04286eb77e4d	26391049-cd41-4d1e-87af-1c53f424606d	nextflow run workflow.nf
+2021-11-10 14:37:36	1m 16s	admiring_wiles	ERR	6870a7947101de72a235f63974651a9d	b6a6cad1-65ea-419a-ab48-1ef073825c7b	nextflow run workflow.nf
+2021-11-10 14:39:30	1m 54s	nice_williams	OK	6870a7947101de72a235f63974651a9d	17bb81b1-1eb0-4fa3-a46e-3ecd1147ce43	nextflow run workflow.nf
+2021-11-12 16:58:57	-	nice_mayer	-	a669b4b2b83e549f0b3f22e5225f71fd	c75715a5-9d42-4672-9037-45e64853498e	nextflow run workflow.nf
+2021-11-12 16:59:09	1.8s	dreamy_ekeblad	ERR	a669b4b2b83e549f0b3f22e5225f71fd	e4729781-0462-4cc8-9e66-cc45b254b2dc	nextflow run workflow.nf
+2021-11-12 16:59:41	1m 50s	nasty_golick	OK	17c025a8c0324ac9ada9d409d27febff	b343d958-de27-415d-be68-dc73f4b3517d	nextflow run workflow.nf
