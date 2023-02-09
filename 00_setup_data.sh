@@ -5,7 +5,7 @@ do
     mkdir -p data/$ddir
 done
 
-for cdir in kmeans meanshift affinity dbscan optics agglom
+for cdir in kmeans
 do
     mkdir -p data/clusters/$cdir
 done
