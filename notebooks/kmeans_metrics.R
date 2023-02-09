@@ -83,6 +83,6 @@ p <- ggplot(src_data,aes(par,src,fill=as.factor(sign))) +
 p <- p + ylab("Standarized regression coefficient") + xlab("") 
 p <- p + theme_classic() + guides(fill="none")
 p
-ggsave("fig/standardized_regression_coef.png",p,dpi=150,width=6,height=4,units = "in")
+ggsave("../fig/standardized_regression_coef.png",p,dpi=150,width=6,height=4,units = "in")
 
 
