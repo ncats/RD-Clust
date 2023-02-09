@@ -12,7 +12,7 @@ do
 				embedfile="data/embeddings/ontograph_embed_N${nwalks}_L${walklen}_D${vector_size}_K${context_window}.model"
 				if [ ! -f "$embedfile" ]; then
 					sbatch --job-name vector_embeddings_D${vector_size}_K${context_window} \
-                        		submit_embeddings.sh $wfile $vector_size $context_window
+                        		src/scripts/submit_embeddings.sh $wfile $vector_size $context_window
 				    #echo $embedfile
                 fi		
     			done

@@ -15,7 +15,7 @@ do
 				model_count=$(ls data/clusters/kmeans/ontograph_embed_N${nwalks}_L${walklen}_D${vector_size}_K${context_window}_KMEANS_KOPT*.pkl 2>/dev/null | wc -l )
 				if [ $model_count == 0  ]; then
 					
-					sbatch submit_clusters.sh $embedfile
+					sbatch src/scripts/submit_clusters.sh $embedfile
 				
 				fi
     			done

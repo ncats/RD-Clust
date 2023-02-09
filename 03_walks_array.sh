@@ -8,7 +8,7 @@ do
         if [ ! -f "$wfile" ]; then
             echo $wfile
             sbatch --job-name random_walks_N${nwalks}_L${walklen} \
-                submit_walks.sh \
+                src/scripts/submit_walks.sh \
                 $nwalks \
                 $walklen
         fi 
