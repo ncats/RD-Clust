@@ -25,5 +25,6 @@ pip install -r requirements.txt
     - Gene enrichment: ```06_calculate_enrichment.sh```
     - Clustering metrics: ```06_summarize_clusters.sh```
     - Walk annotation counts: ```06_summarize_walks.sh```
+    - Semantic similarity: ```06_calculate_semantic_similarity.sh```
 - 7) Detailed analysis and Visualization in the notebooks directory
 
