@@ -87,3 +87,8 @@ target/
 
 # Mypy cache
 .mypy_cache/
+
+# R stuff
+
+.RData
+.Rhistory
