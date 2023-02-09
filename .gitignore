@@ -57,7 +57,7 @@ docs/_build/
 target/
 
 # DotEnv configuration
-.env
+*.env
 
 # Database
 *.db
@@ -89,6 +89,5 @@ target/
 .mypy_cache/
 
 # R stuff
-
 .RData
 .Rhistory
