@@ -1,0 +1,16 @@
+mamba create -n rdclust python=3.8 pip numpy scipy pandas networkx statsmodels nextflow scikit-learn gensim kneed graph-tool
+
+mamba activate rdclust
+
+conda config --env --add channels bioconda
+conda config --env --add channels condo-forge
+conda config --env --add channels anaconda
+conda config --env --add channels defaults
+
+#Note that pip can be used to install packages into conda environments as well. However, this can sometimes cause problems when pip overwrites existing conda-installed packages.
+
+pip install -r requirements.txt
+
+#check for packages
+
+mamba list
