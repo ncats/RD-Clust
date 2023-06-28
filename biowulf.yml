@@ -1,3 +1,5 @@
+# from https://hpc.nih.gov/docs/diy_installation/conda.html
+
 mamba create -n rdclust python=3.8 pip numpy scipy pandas networkx statsmodels nextflow scikit-learn gensim kneed graph-tool
 
 mamba activate rdclust
