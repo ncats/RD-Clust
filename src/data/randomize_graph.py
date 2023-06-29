@@ -2,7 +2,9 @@ import sys
 import networkx as nx
 import random
 import pickle
-import pickle5 as p
+from pathlib import Path
+
+#import pickle5 as p
 
 def random_reference_multigraph(G, niter=1, connectivity=True):
     """
@@ -62,17 +64,20 @@ def random_reference_multigraph(G, niter=1, connectivity=True):
 
 
 def main():
+    project_dir = Path(__file__).resolve().parents[2]
     graph_file = sys.argv[1]
     iteration = sys.argv[2]
 
-    with open(graph_file, 'rb') as f:
-        original_graph = p.load(f)
-
+    #with open(graph_file, 'rb') as f:
+    #     original_graph = p.load(f)
+    original_graph =nx.barabasi_albert_graph(100,5)
     random_graph = random_reference_multigraph(original_graph, niter=1)
+    nx.write_edgelist(original_graph, project_dir / "data/random_graphs/original_graph.edgelist")
+    nx.write_edgelist(random_graph, project_dir / "data/random_graphs/random_graph.edgelist")
 
-    with open(project_dir / f"data/random_graphs/random_ontograph_{iteration}.pkl", 'wb') as f:
-        # Pickle the 'data' dictionary using the highest protocol available.
-        pickle.dump(random_graph, f, pickle.HIGHEST_PROTOCOL)
+    #with open( project_dir / f"data/random_graphs/random_ontograph_{iteration}.pkl", 'wb') as f:
+    #    # Pickle the 'data' dictionary using the highest protocol available.
+    #    pickle.dump(random_graph, f, pickle.HIGHEST_PROTOCOL)
 
 if __name__=="__main__":
     main()
