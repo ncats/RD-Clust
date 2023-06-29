@@ -29,6 +29,8 @@ def random_reference_multigraph(G, niter=1, connectivity=True):
     swapcount = 0
 
     for i in range(niter):
+       if i % 1000 ==0:
+           print(f"Completed {i} iterations which is {i/niter * 100} percent")
         n = 0
         while n < ntries:
             # pick two random edges without creating edge list
