@@ -4,7 +4,8 @@ Identifying sets of rare diseases with shared aspects of etiology and pathophysi
 
 ## Workflow:
 
-The workflow is designed to executed within an HPC slurm cluster environment. If you just want to get a better sense of the approach, please see the various example notebooks provided. 
+Note: The workflow is designed and executed within an HPC slurm cluster environment. 
+If you just want to get a better sense of the approach, please see the various example notebooks provided. 
 
 The steps to reproducing the workflow are outlined below:
 
@@ -15,8 +16,8 @@ conda env create -f rdclust.yml
 conda activate rdclust
 pip install -r requirements.txt
 ```
-- 1) Get data: ```01_get_gard_data.sh``` and ```01_get_public_data.sh```
-    - The GARD data aren't presently publicly accessible via API so we provide them in this repository
+- 1) Get data: ```01_get_public_data.sh```
+    - ######**note** The GARD data is currently NOT publicly accessible via API, therefore we provide the necessary datasets in this repository. When an API is publicly available the workflow and ```01_get_gard_data.sh``` will be updated.
 - 2) Pre-process the data: ```02_process_ontologies.sh```
 - 3) Generate random walks: ```03_walks_array.sh```
 - 4) Generate node embeddings: ```04_embeddings_array.sh```
@@ -27,4 +28,7 @@ pip install -r requirements.txt
     - Walk annotation counts: ```06_summarize_walks.sh```
     - Semantic similarity: ```06_calculate_semantic_similarity.sh```
 - 7) Detailed analysis and Visualization in the notebooks directory
-
+ 
+     ______________
+     
+*For quality check, we randomized graphs to assess how well disease nodes cluster when their relationships are not based on real knowledge. See QC directory for quality control pipeline aka ```07_randomize_graph.sh```
