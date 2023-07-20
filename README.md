@@ -1,11 +1,11 @@
 # RDClust: Clustering of rare diseases on knowledge graphs
 
-Identifying sets of rare diseases with shared aspects of etiology and pathophysiology may enable drug repurposing and/or platform based therapeutic development. Toward that aim we utilize an integrative knowledge graph-based approach to constructing clusters of rare diseases. 
+Identifying sets of rare diseases with shared aspects of etiology and pathophysiology may enable drug repurposing and/or platform-based therapeutic development. Toward that aim, we utilize an integrative knowledge graph-based approach to constructing clusters of rare diseases. 
 
 ## Workflow:
 
 Note: The workflow is designed and executed within an HPC slurm cluster environment. 
-If you just want to get a better sense of the approach, please see the various example notebooks provided. 
+For more information, please see the various example notebooks provided. 
 
 The steps to reproducing the workflow are outlined below:
 
@@ -17,7 +17,7 @@ conda activate rdclust
 pip install -r requirements.txt
 ```
 - 1) Get data: ```01_get_public_data.sh```
-###### Note - The GARD data is currently NOT publicly accessible via API, therefore we provide the necessary datasets in this repository. When an API is publicly available the workflow and ```01_get_gard_data.sh``` will be updated.
+###### Note - The GARD data is currently NOT publicly accessible via API; therefore, we provide the necessary datasets in this repository (RD-Clust/data/raw/). When an API is publicly available, the workflow and ```01_get_gard_data.sh``` will be updated.
 - 2) Pre-process the data: ```02_process_ontologies.sh```
 - 3) Generate random walks: ```03_walks_array.sh```
 - 4) Generate node embeddings: ```04_embeddings_array.sh```
