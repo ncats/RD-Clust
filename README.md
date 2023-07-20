@@ -17,7 +17,7 @@ conda activate rdclust
 pip install -r requirements.txt
 ```
 - 1) Get data: ```01_get_public_data.sh```
-###### Note ; The GARD data is NOT currently publicly accessible via API, therefore we provide the necessary datasets in this repository. When an API is publicly available the workflow and ```01_get_gard_data.sh``` will be updated.
+###### Note - The GARD data is currently NOT publicly accessible via API, therefore we provide the necessary datasets in this repository. When an API is publicly available the workflow and ```01_get_gard_data.sh``` will be updated.
 - 2) Pre-process the data: ```02_process_ontologies.sh```
 - 3) Generate random walks: ```03_walks_array.sh```
 - 4) Generate node embeddings: ```04_embeddings_array.sh```
