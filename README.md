@@ -31,4 +31,4 @@ pip install -r requirements.txt
  
      ______________
      
-*For quality check, we randomized graphs to assess how well disease nodes cluster when their relationships are not based on real knowledge. See QC directory for quality control pipeline *
+* For quality check, we randomized graphs to assess how well disease nodes cluster when their relationships are not based on real knowledge. See QC directory for quality control pipeline *
